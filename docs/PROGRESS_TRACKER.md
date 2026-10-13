@@ -159,6 +159,14 @@ Importante: nao resolver este exercicio neste arquivo. Ele deve ser conduzido pe
 - Verificar chaves, nulos e duplicidades basicas em `customers` e `orders`.
 - Registrar contagens com data no `DATA_MAP.md`.
 
+## Sessoes de Git
+
+### 2026-10-12 - Introducao ao Git
+
+Repositorio iniciado e primeiro commit criado. Praticados `git init`, `git status`, `git add`, `git commit` e `git log`. Dificuldade identificada: distinguir preparacao, registro local e publicacao. Conceitos ainda em consolidacao.
+
+Proximo passo em Git: retomar essa diferenca e definir o destino do arquivo de contexto original (`contexto-sql-olist.md`). O proximo exercicio de SQL permanece pendente, conforme a secao acima.
+
 ## Quando e como atualizar este arquivo
 
 Atualizar ao final de toda sessao de estudo, depois da confirmacao da estudante. Registrar exercicios praticados, erros cometidos, conceitos que melhoraram, conceitos ainda frageis, uso da palavra `entrega` e o proximo exercicio. Nao marcar um fundamento como consolidado apenas porque a consulta executou sem erro.
