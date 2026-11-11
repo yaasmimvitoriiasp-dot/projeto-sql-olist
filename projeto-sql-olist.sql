@@ -188,11 +188,40 @@ CREATE TABLE ecommerce.products (
     product_width_cm           INTEGER
 );
 select * from ecommerce.orders limit 5
---16. Pedidos sem data de entrega separados por status
+select * from ecommerce.customers limit 5
+select * from ecommerce.order_payments limit 5
+
+--17.liste todos os
+--estados com a quantidade de pedidos entregues em cada um
+
 select 
-	order_status as status_pedido,
-	count(order_id) as qtd_pedidos
-from ecommerce.orders
-where order_delivered_customer_date is null and order_status = 'delivered'
-group by status_pedido
+	c.customer_state,
+	count(c.customer_id)  as qtd_pedidos
+	--o.order_status
+from ecommerce.customers c
+left join ecommerce.orders o
+on c.customer_id = o.customer_id
+where o.order_status = 'delivered'
+group by c.customer_state 
 order by qtd_pedidos desc
+
+--18. faturamento por estado
+select 
+	c.customer_state as cliente_estado,
+	sum(p.payment_value) as valor_total_pago
+from 
+	ecommerce.customers c
+inner join 
+	ecommerce.orders o
+on 
+	c.customer_id = o.customer_id
+inner join 
+	ecommerce.order_payments p
+on 
+	o.order_id = p.order_id
+where 
+	o.order_status = 'delivered'
+group by 
+	cliente_estado
+order by 
+	valor_total_pago desc
