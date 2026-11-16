@@ -225,3 +225,35 @@ group by
 	cliente_estado
 order by 
 	valor_total_pago desc
+
+--19. O order_id é único na tabela orders
+select 
+	count(order_id) as order_id_qtd,
+	count(distinct order_id) as order_id_qtd_distinto
+from ecommerce.orders
+
+--20. o customer_id é único na tabela customers
+select 
+	count(customer_id) as customer_id_qtd,
+	count(distinct customer_id) as customer_id_qtd_distinta
+from ecommerce.customers
+
+--21. quantos pedidos aparecem mais de uma vez 
+--na order_payments
+select * from ecommerce.order_payments limit 5
+select
+	count(order_id) as qtd_order_id
+from ecommerce.order_payments
+group by order_id
+having count(order_id) > 1
+
+--22.quantos pedidos aparecem mais de uma vez na 
+--order_items
+select 
+ count(order_id) as qtd_order_id
+from 
+	ecommerce.order_items
+group by 
+	order_id
+having
+	count(order_id) > 1
