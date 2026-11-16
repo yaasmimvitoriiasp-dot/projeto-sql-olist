@@ -4,7 +4,7 @@ Este arquivo registra o entendimento das tabelas usadas no projeto Olist. Nenhum
 
 Regra central: registrar como confirmado apenas o que foi verificado por consulta executada pela estudante. O que ainda nao foi verificado deve ficar como pendente.
 
-Ultima atualizacao: 2026-11-10.
+Ultima atualizacao: 2026-11-16 (validacoes de 2026-11-11).
 
 ## Visao geral
 
@@ -35,7 +35,9 @@ pessoa (customer_unique_id) 1 --- N customer_id 1 --- 1 pedido (order_id)
 order_items.product_id --- products.product_id
 ```
 
-O 1:1 entre `customer_id` e `order_id` e uma hipotese apoiada pela contagem igual das duas tabelas (99.441). Validacao formal pendente.
+Confirmado em 2026-11-11: `order_id` e unico em `orders` e `customer_id` e unico em `customers` (99.441 linhas e 99.441 valores distintos em cada). Com as duas tabelas do mesmo tamanho, o 1:1 entre `customer_id` e pedido e consistente. Ainda nao verificado: se cada `customer_id` aparece uma unica vez em `orders`.
+
+Alerta de duplicacao (2026-11-11): 2.961 pedidos tem mais de uma linha em `order_payments` e 9.803 pedidos tem mais de uma linha em `order_items`. Juntar `order_items` e `order_payments` na mesma consulta multiplica linhas (ex.: 2 itens x 2 pagamentos = 4 linhas) e infla somas.
 
 ## `ecommerce.customers`
 
@@ -55,7 +57,7 @@ Uma linha por `customer_id`. Cada pedido gera um `customer_id` novo, entao a mes
 
 Evidencia da estudante: em SP ha 41.746 registros para 40.302 pessoas unicas (2026-11-02); a pessoa com mais registros tem 17 (2026-11-03).
 
-Pendente: registrar o resultado do exercicio 10 (unicidade de `customer_id`) com data.
+Confirmado em 2026-11-11: `customer_id` e unico (99.441 linhas, 99.441 distintos).
 
 ### Qualidade
 
@@ -63,7 +65,7 @@ Pendente: registrar o resultado do exercicio 10 (unicidade de `customer_id`) com
 |---|---|---|---|
 | `customer_zip_code_prefix` como numero | Zeros a esquerda perdidos (ex.: 1151 em vez de 01151) | 2026-11-02 | Registrado; nao afeta as analises atuais |
 | Duplicidade em `customer_unique_id` | Existe, por desenho (pessoa com varios pedidos) | 2026-11-02 | Confirmado |
-| Unicidade de `customer_id` | Consulta feita (exercicio 10), resultado nao registrado | - | Pendente |
+| Unicidade de `customer_id` | 99.441 linhas, 99.441 distintos | 2026-11-11 | Confirmado |
 | Nulos em `customer_id` | Coluna definida como not null | 2026-11-02 | Ok |
 | Nulos em `customer_unique_id` e `customer_state` | Nao verificado | - | Pendente |
 
@@ -84,13 +86,13 @@ Pendente: registrar o resultado do exercicio 10 (unicidade de `customer_id`) com
 
 ### Granularidade
 
-Hipotese: uma linha por pedido. Validacao de unicidade de `order_id` pendente.
+Uma linha por pedido. Confirmado em 2026-11-11: 99.441 linhas e 99.441 `order_id` distintos.
 
 ### Chaves e relacionamentos
 
 | Coluna | Papel | Status |
 |---|---|---|
-| `order_id` | identificador do pedido; liga com `order_items`, `order_payments`, `order_reviews` | Usado em `JOIN` com `order_payments` (2026-11-10); unicidade pendente |
+| `order_id` | identificador do pedido; liga com `order_items`, `order_payments`, `order_reviews` | Unico (2026-11-11); usado em `JOIN` com `order_payments` (2026-11-10) |
 | `customer_id` | liga com `customers.customer_id` | Usado em `JOIN` (2026-10-12 e 2026-11-10) |
 
 ### Qualidade
@@ -99,7 +101,7 @@ Hipotese: uma linha por pedido. Validacao de unicidade de `order_id` pendente.
 |---|---|---|---|
 | Pedidos sem `order_delivered_customer_date` | shipped 1.107, canceled 619, unavailable 609, invoiced 314, processing 301, delivered 8, created 5, approved 2 | 2026-11-04 | Registrado |
 | Pedidos `delivered` sem data de entrega | 8 | 2026-11-04 | Inconsistencia. Excluir da analise de atraso |
-| Unicidade de `order_id` | Nao verificado | - | Pendente |
+| Unicidade de `order_id` | 99.441 linhas, 99.441 distintos | 2026-11-11 | Confirmado |
 
 Regra para analise de atraso: usar apenas pedidos com `order_status = 'delivered'` e `order_delivered_customer_date` preenchida.
 
@@ -111,7 +113,9 @@ Granularidade (hipotese): uma linha por item de pedido; chave = `order_id` + `or
 
 Risco em `JOIN`: relacionamento 1:N com `orders`. Somar valores de pedido depois de juntar com `order_items` pode multiplicar linhas.
 
-Pendente: validar granularidade e nulos.
+Confirmado em 2026-11-11: 9.803 pedidos aparecem mais de uma vez (tem mais de um item).
+
+Pendente: validar a chave `order_id` + `order_item_id` e nulos.
 
 ## `ecommerce.order_payments`
 
@@ -121,7 +125,7 @@ Granularidade (hipotese): uma linha por pagamento de um pedido; chave = `order_i
 
 Uso: faturamento por estado com `SUM(payment_value)` (2026-11-10). Somar todos os pagamentos de um pedido da o total pago; contar linhas aqui nao e o mesmo que contar pedidos.
 
-Pendente: validar quantos pedidos tem mais de um pagamento.
+Confirmado em 2026-11-11: 2.961 pedidos aparecem mais de uma vez (tem mais de um pagamento).
 
 ## `ecommerce.order_reviews`
 
@@ -137,9 +141,9 @@ Granularidade (hipotese): uma linha por produto. Pendente: unicidade de `product
 
 ## Pendencias de verificacao
 
-- Registrar resultado da unicidade de `customers.customer_id` (exercicio 10).
-- Validar se `orders.order_id` e unico.
-- Validar granularidade de `order_items`, `order_payments`, `order_reviews` e `products`.
+- Verificar se cada `customer_id` aparece uma unica vez em `orders`.
+- Validar a chave composta de `order_items` (`order_id` + `order_item_id`) e de `order_payments` (`order_id` + `payment_sequential`).
+- Validar granularidade de `order_reviews` e `products`.
 - Verificar nulos nas colunas de relacionamento.
 - Registrar a data da contagem de `customers` e `orders`.
 

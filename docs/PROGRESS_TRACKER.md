@@ -2,7 +2,7 @@
 
 Este arquivo registra a evolucao do aprendizado em SQL no projeto Olist. Ele deve mostrar o que foi praticado, o que ainda esta fragil, quais erros viraram aprendizado e qual e o proximo passo.
 
-Ultima atualizacao: 2026-11-10.
+Ultima atualizacao: 2026-11-16 (sessao de 2026-11-11).
 
 ## Estado atual
 
@@ -11,7 +11,7 @@ Ultima atualizacao: 2026-11-10.
 - Schema: `ecommerce`.
 - Tabelas importadas: `customers`, `orders`, `order_items`, `order_payments`, `order_reviews`, `products`.
 - Nivel atual: basico pratico, entrando em relacionamentos (Etapa 2 do roadmap).
-- Foco atual: `JOIN` entre varias tabelas, agregacoes (`COUNT`, `SUM`), validacao de chaves e interpretacao de negocio.
+- Foco atual: consolidar `GROUP BY` + `HAVING`; `JOIN` entre varias tabelas; cuidado com duplicacao em relacionamentos 1:N antes do ticket medio.
 - Meta: projeto publicado no GitHub e no LinkedIn ate 2026-12-14 (ver `MASTER_CONTEXT.md`).
 
 ## Conteudos praticados
@@ -25,7 +25,7 @@ Ultima atualizacao: 2026-11-10.
 - `ORDER BY`
 - `LIMIT`
 - Aliases com `AS` e aliases de tabela (`c`, `o`, `p`)
-- `IS NULL` e `AND`
+- `IS NULL`, `AND` e `IN`
 - `INNER JOIN` com 2 e 3 tabelas
 - `LEFT JOIN` (usado uma vez; diferenca para `INNER JOIN` explicada em 2026-11-10)
 - `information_schema.tables` e `information_schema.columns`
@@ -42,8 +42,8 @@ Ultima atualizacao: 2026-11-10.
 | `ORDER BY` | Basico consolidado | Ordena por alias e por agregacao | Ok |
 | `COUNT(*)` / `COUNT(campo)` | Basico em consolidacao | Descobriu na pratica que `COUNT(campo)` ignora nulos (2026-11-04) | Em pratica |
 | `COUNT(DISTINCT campo)` | Basico em consolidacao | Usa para pessoas unicas; teve duvida se `customer_unique_id` precisava de `DISTINCT` e comprovou rodando as duas versoes (2026-11-02) | Reforcar |
-| `GROUP BY` | Basico em consolidacao | Agrupa por uma e por duas colunas (cidade + estado) | Em pratica |
-| `HAVING` | Basico | Resolveu cidades com mais de 1.000 clientes unicos sem consultar o chat (2026-11-02) | Em pratica |
+| `GROUP BY` | Inicial / fragil | Agrupa por uma e por duas colunas; em 2026-11-11 descobriu que agregacao sem `GROUP BY` olha a tabela inteira (1 linha); ainda confunde o que o `COUNT` devolve sem `GROUP BY` | Prioridade - retomar |
+| `HAVING` | Inicial / fragil | Resolveu cidades com mais de 1.000 clientes (2026-11-02) e a validacao de `order_items` sozinha (2026-11-11); mas ainda le `HAVING COUNT(x) > 1` como se comparasse cada linha/ID, e nao a contagem do grupo | Prioridade - retomar |
 | `IS NULL` | Inicial | Pesquisou e aplicou sozinha (2026-11-04) | Em pratica |
 | `INNER JOIN` | Basico | 2 tabelas (2026-11-10) e 3 tabelas (2026-11-10, com pesquisa no Gemini) | Prioridade |
 | `LEFT JOIN` | Inicial | Usou com `WHERE` na tabela da direita (vira `INNER` na pratica); diferenca explicada com exemplo | Prioridade |
@@ -134,6 +134,27 @@ Como foi resolvido: a estrutura de 3 `JOIN`s foi pesquisada no Gemini e replicad
 
 Consulta ainda nao esta no script.
 
+### 19 a 22. Validacao de chaves (2026-11-11)
+
+| Verificacao | Resultado | Conclusao |
+|---|---|---|
+| `order_id` em `orders` | 99.441 linhas, 99.441 distintos | Unico |
+| `customer_id` em `customers` | 99.441 linhas, 99.441 distintos | Unico |
+| Pedidos com mais de uma linha em `order_payments` | 2.961 | 2.961 pedidos tem mais de um pagamento |
+| Pedidos com mais de uma linha em `order_items` | 9.803 | 9.803 pedidos tem mais de um item |
+
+Aprendizados:
+
+- Agregacao sem `GROUP BY` considera a tabela inteira como um grupo e devolve uma linha. O que obriga o `GROUP BY` e ter no `SELECT` uma coluna fora da agregacao.
+- Regra pratica: pergunta "para cada X" pede `GROUP BY X`; pergunta sobre a tabela inteira, nao.
+- `GROUP BY` decide o que e um grupo; `COUNT` mede cada grupo; `HAVING` escolhe quais grupos ficam.
+- Para saber quantos grupos sobraram, foi usada a aba Messages do pgAdmin ("rows affected"). Contar os grupos direto na consulta exige subconsulta (proximo nivel da trilha).
+- Juntar `order_items` e `order_payments` na mesma consulta multiplica linhas.
+
+Como foi resolvido: validacoes 1, 2 e 4 sozinha; na 3 precisou de uma dica e de exemplo com tabela pequena. A validacao 4 foi feita sem ajuda, com o mesmo raciocinio da 3.
+
+Observacao: no script, a consulta da validacao 1 ainda tem um `GROUP BY order_id` que nao corresponde ao resultado registrado (foi rodado um trecho selecionado). Corrigir na limpeza.
+
 ## Exercicios destravados pela palavra `entrega`
 
 Nenhum ate o momento.
@@ -155,30 +176,30 @@ Observacao: os comandos `CREATE TABLE` das quatro tabelas novas (2026-11-03) e a
 | 2026-11-03 | Importacao falhou: CSV de itens escolhido para a tabela de pagamentos; depois delimitador trocado para `;` | Nomes de arquivo parecidos | Conferir nome do arquivo e delimitador; ler o detalhe do erro em View Processes | Corrigido |
 | 2026-11-04 | `COUNT(order_delivered_customer_date)` com `WHERE ... IS NULL` retornava 0 | `COUNT(campo)` ignora nulos | Contar uma coluna que sempre existe | Corrigido |
 | 2026-11-10 | `LEFT JOIN` com filtro na tabela da direita | Diferenca entre tipos de join esquecida | O filtro remove as linhas sem par, entao vira `INNER JOIN` na pratica | Reforcar com exercicio |
+| 2026-11-11 | `GROUP BY order_id` numa contagem da tabela inteira | Achava que toda agregacao exige `GROUP BY` | Sem coluna fora da agregacao no `SELECT`, nao precisa de `GROUP BY` | Corrigido |
+| 2026-11-11 | `COUNT(order_id)` + `HAVING > 1` sem `GROUP BY` para achar pedidos repetidos | Le o `HAVING` como filtro de cada linha/ID e espera ver os registros listados | Com `COUNT` no `SELECT`, a consulta devolve uma linha por grupo; sem `GROUP BY` ha um grupo so (a tabela) e o `HAVING` compara o total com 1 | Pendente - retomar com exercicios de previsao |
 
 ## Dificuldades atuais
 
+- O que uma consulta com `COUNT` devolve com e sem `GROUP BY`, e o que o `HAVING` compara. A estudante decidiu seguir em 2026-11-11 mesmo sem consolidar; retomar de forma espacada (exercicio de previsao com 2 pedidos filtrados por `IN`, proposto e ainda nao feito).
 - Diferenca entre `INNER JOIN` e `LEFT JOIN` na pratica (quando cada um muda o resultado).
 - Explicar com as proprias palavras o caminho de um `JOIN` com 3 tabelas.
 - Prever duplicacao de linhas em relacionamentos 1:N (sera essencial no ticket medio).
 
 ## Proximo exercicio
 
-Validacao de chaves (pendencia do `DATA_MAP.md`), curta, antes da pergunta 3:
+Abrir a sessao com uma fixacao curta de `GROUP BY` + `HAVING` (exercicio de previsao: prever quantas linhas cada consulta devolve antes de rodar, com 2 pedidos filtrados por `IN`).
 
-> Antes de calcular ticket medio, confirme se `order_id` e unico em `orders` e se `customer_id` e unico em `customers`. Depois, descubra se um mesmo pedido pode aparecer mais de uma vez em `order_payments` e em `order_items`.
-
-Em seguida: pergunta de negocio 3, ticket medio por pedido.
+Em seguida: pergunta de negocio 3, ticket medio por pedido, levando em conta que um pedido pode ter varios pagamentos e varios itens.
 
 Importante: nao resolver este exercicio neste arquivo. Ele deve ser conduzido pela metodologia do `LEARNING_PROTOCOL.md`.
 
 ## Pendencias antes de avancar muito
 
-- Registrar os resultados dos exercicios 10 (unicidade de `customer_id`) e 12 (pessoas diferentes em `customers`), com data.
-- Validar unicidade de `order_id` em `orders`.
+- Registrar o resultado do exercicio 12 (pessoas diferentes em `customers`), com data.
 - Verificar nulos nas chaves de relacionamento.
 - Explicar com as proprias palavras a consulta da pergunta 2.
-- Colocar no script as consultas das cidades com mais de 1.000 clientes e das perguntas 1 e 2.
+- Colocar no script a consulta das cidades com mais de 1.000 clientes (perguntas 1 e 2 ja estao no script desde 2026-11-10).
 
 ## Sessoes de Git
 
@@ -199,6 +220,10 @@ Aprendizado: o `git status` mostrou os arquivos de `docs/` como `deleted` porque
 Rotina diaria combinada: `git add`, `git commit -m "mensagem"`, `git push`.
 
 Proximo passo em Git: sessao de estudo na Etapa 5 (organizacao do repositorio).
+
+### 2026-11-11 - Arquivo certo no pgAdmin
+
+O pgAdmin estava salvando no arquivo antigo `ç.sql` (pasta Downloads). Combinado: usar Save As para o arquivo do projeto e abrir sempre pelo Open File da pasta `OneDrive\Documentos\projeto-sql-olist\`.
 
 ## Uso de IA no projeto
 

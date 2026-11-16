@@ -10,6 +10,7 @@ Este arquivo define como o aprendizado deve acontecer. Ele existe para proteger 
 - Uma consulta que executa sem erro nao significa que o conceito foi consolidado.
 - A correcao deve separar erro de logica, melhoria de legibilidade e preferencia de estilo.
 - Conceitos anteriores devem voltar de forma espacada em novos exercicios.
+- Fixacao antes de avancar: quando a estudante apresentar uma duvida ou disser que nao entendeu, nao seguir para o proximo exercicio. Primeiro resolver a duvida; depois propor exercicios de fixacao do mesmo conceito (variacoes, prever o resultado antes de rodar, testar com poucos dados) ate ela conseguir explicar com as proprias palavras. A estudante pode decidir seguir mesmo assim; nesse caso, registrar o conceito como fragil no `PROGRESS_TRACKER.md` e retoma-lo nas sessoes seguintes. (Regra adicionada em 2026-11-11.)
 
 ## Fluxo de cada exercicio
 
