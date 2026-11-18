@@ -4,7 +4,7 @@ Este arquivo registra o entendimento das tabelas usadas no projeto Olist. Nenhum
 
 Regra central: registrar como confirmado apenas o que foi verificado por consulta executada pela estudante. O que ainda nao foi verificado deve ficar como pendente.
 
-Ultima atualizacao: 2026-11-16 (validacoes de 2026-11-11).
+Ultima atualizacao: 2026-11-18.
 
 ## Visao geral
 
@@ -36,6 +36,17 @@ order_items.product_id --- products.product_id
 ```
 
 Confirmado em 2026-11-11: `order_id` e unico em `orders` e `customer_id` e unico em `customers` (99.441 linhas e 99.441 valores distintos em cada). Com as duas tabelas do mesmo tamanho, o 1:1 entre `customer_id` e pedido e consistente. Ainda nao verificado: se cada `customer_id` aparece uma unica vez em `orders`.
+
+Ausencias encontradas com `LEFT JOIN` (2026-11-17):
+
+| Verificacao | Resultado |
+|---|---|
+| Pedidos sem avaliacao | 768 (delivered 646, shipped 75, canceled 20, unavailable 14, processing 6, invoiced 5, created 2) |
+| Pedidos sem nenhum item | 775 |
+| Produtos da `products` nunca vendidos | 0 |
+| Pedidos entregues sem pagamento | 1: `bfbd0f9bdef84302105ad712db648a6c` |
+
+Pagamentos por pedido (2026-11-18): 96.479 pedidos com 1 pagamento + 2.961 com mais de 1 + 1 sem pagamento = 99.441.
 
 Alerta de duplicacao (2026-11-11): 2.961 pedidos tem mais de uma linha em `order_payments` e 9.803 pedidos tem mais de uma linha em `order_items`. Juntar `order_items` e `order_payments` na mesma consulta multiplica linhas (ex.: 2 itens x 2 pagamentos = 4 linhas) e infla somas.
 
@@ -127,17 +138,23 @@ Uso: faturamento por estado com `SUM(payment_value)` (2026-11-10). Somar todos o
 
 Confirmado em 2026-11-11: 2.961 pedidos aparecem mais de uma vez (tem mais de um pagamento).
 
+Confirmado em 2026-11-18: o mesmo pedido pode ter varias linhas da **mesma** forma de pagamento (ex.: `fa65dad1b0e818e3ccc5cb0e39231352` com 29 linhas de voucher). Para contar pedidos por forma de pagamento, usar `COUNT(DISTINCT order_id)`. Formas: credit_card, boleto, voucher, debit_card, not_defined (3 pedidos).
+
+Um pedido entregue nao tem nenhuma linha nesta tabela (`bfbd0f9bdef84302105ad712db648a6c`); um `INNER JOIN` com `order_payments` o descarta.
+
 ## `ecommerce.order_reviews`
 
 Colunas criadas em 2026-11-03: `review_id` varchar(32), `order_id` varchar(32), `review_score` integer, `review_comment_title` text, `review_comment_message` text, `review_creation_date` timestamp, `review_answer_timestamp` timestamp.
 
-Granularidade (hipotese): uma linha por avaliacao. Pendente: verificar se um pedido pode ter mais de uma avaliacao e se `review_id` se repete.
+Granularidade (hipotese): uma linha por avaliacao. 99.224 linhas; 768 pedidos nao tem avaliacao (2026-11-17).
+
+Indicio de duplicacao: `orders LEFT JOIN order_reviews` deu 99.992 linhas, mais que os 99.441 pedidos. Isso sugere que alguns pedidos tem mais de uma avaliacao. Pendente: quantificar antes da pergunta 5 (nota da avaliacao).
 
 ## `ecommerce.products`
 
 Colunas criadas em 2026-11-03: `product_id` varchar(32), `product_category_name` varchar(100), `product_name_lenght`, `product_description_lenght`, `product_photos_qty`, `product_weight_g`, `product_length_cm`, `product_height_cm`, `product_width_cm` (todas integer). A grafia `lenght` vem do arquivo original.
 
-Granularidade (hipotese): uma linha por produto. Pendente: unicidade de `product_id` e nulos em `product_category_name`.
+Granularidade (hipotese): uma linha por produto. Todo produto aparece em pelo menos um item vendido (2026-11-17). Pendente: unicidade de `product_id` e nulos em `product_category_name`.
 
 ## Pendencias de verificacao
 

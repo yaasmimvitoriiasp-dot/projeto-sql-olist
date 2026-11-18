@@ -46,28 +46,28 @@ O conhecimento atual de SQL e basico e esta sendo desenvolvido neste projeto. O 
 
 ## Estado atual do projeto
 
-Atualizado em 2026-11-10.
+Atualizado em 2026-11-18.
 
 Fatos ja concluidos:
 
 - Seis tabelas importadas, com contagens registradas no `DATA_MAP.md`.
 - Colunas e tipos de `customers` e `orders` conferidos via `information_schema`.
-- Etapa 1 (fundamentos) praticada: agregacoes, `GROUP BY`, `HAVING`, `DISTINCT`, `IS NULL`.
-- Checagem de qualidade: datas de entrega nulas por status; 8 pedidos `delivered` sem data.
-- Etapa 2 (relacionamentos) iniciada: perguntas de negocio 1 e 2 resolvidas com `JOIN` de 2 e 3 tabelas.
+- Validacao de chaves: `order_id` e `customer_id` unicos; pedidos repetidos em pagamentos e itens quantificados.
+- Etapa 1 (fundamentos) praticada; Etapa 2 (relacionamentos) em andamento, com treino de `INNER` x `LEFT JOIN`.
+- Primeiros conceitos intermediarios: subconsulta e media por pedido.
+- Perguntas de negocio 1 a 4 concluidas.
 
 Pontos ainda nao concluidos:
 
-- Validar unicidade de `order_id` e registrar a de `customer_id`.
-- Validar granularidade das tabelas novas antes de analises que somem valores (risco de duplicacao em 1:N).
-- Perguntas de negocio 3 a 6.
-- Consolidar a diferenca entre `INNER JOIN` e `LEFT JOIN`.
+- Perguntas de negocio 5 e 6.
+- Consolidar `GROUP BY` + `HAVING` e a escolha de `INNER` x `LEFT JOIN`.
+- Quantificar avaliacoes repetidas por pedido antes da pergunta 5.
 
 ## Meta de publicacao e escopo (decidido em 2026-11-02 e 2026-11-03)
 
 Publicar o projeto no GitHub e no LinkedIn ate 2026-12-14, com o resto de dezembro como folga. O projeto nao deve se arrastar por meses.
 
-Ritmo: cerca de 40 minutos por dia (30 em semanas pesadas de faculdade), uma tarefa fechada por sessao, com commit no fim de cada sessao.
+Ritmo: cerca de 40 minutos por dia (30 em semanas pesadas de faculdade); na pratica, muitas sessoes passam disso. Uma tarefa por vez, com commit no fim de cada sessao.
 
 Escopo da versao publicada (recorte das Etapas 1, 2 e 5 do roadmap; as Etapas 3, 4, 6 e 7 continuam valendo para depois):
 
@@ -82,12 +82,22 @@ Perguntas de negocio da versao publicada:
 
 1. De onde vem os pedidos entregues (pedidos por estado) - concluida em 2026-11-10
 2. Quanto cada estado fatura - concluida em 2026-11-10
-3. Ticket medio por pedido
-4. Formas de pagamento mais usadas
+3. Ticket medio por pedido - concluida em 2026-11-16 (R$ 159,86)
+4. Formas de pagamento mais usadas - concluida em 2026-11-18
 5. Atraso na entrega afeta a nota da avaliacao?
 6. Categorias de produto que mais vendem
 
-Exercicios extras de dificuldade crescente entram entre as perguntas: `LEFT JOIN` para achar o que falta, calculo com datas, `CASE WHEN`, CTEs e funcoes de janela.
+### Plano por conceito ate 2026-11-30 (definido em 2026-11-18)
+
+Cada pergunta restante traz conceitos novos, de dificuldade crescente, sempre com o porque e com experimentos comparativos ("rode assim e assado, o que muda?").
+
+| Periodo | Pergunta | Conceitos novos | Experimento comparativo |
+|---|---|---|---|
+| 2026-11-18 a 2026-11-22 | 5. Atraso x nota | Calculo com datas (diferenca entre datas), `CASE WHEN` (no prazo / atrasado), `AVG` por categoria, CTE (`WITH`) | Subconsulta x CTE para a mesma pergunta |
+| 2026-11-23 a 2026-11-27 | 6. Categorias que mais vendem | `JOIN` com `products`, ranking e participacao % com funcoes de janela (`RANK() OVER`, `SUM() OVER`) | `GROUP BY` x funcao de janela: por que um encolhe as linhas e o outro nao |
+| 2026-11-28 a 2026-11-30 | Revisao | `EXPLAIN` (ver como o banco planeja a consulta), revisao dos conceitos frageis | Mesma consulta com e sem filtro: o que muda no plano |
+
+Antes da pergunta 5: quantificar pedidos com mais de uma avaliacao (risco de duplicacao na media de nota).
 
 ## Roadmap
 
@@ -262,6 +272,9 @@ Observacao: a pasta `docs/` foi criada primeiro. As demais pastas podem ser cria
 | 2026-11-04 | Manter os CSVs fora do repositorio; README apontara para o Kaggle | Arquivos pesados e disponiveis publicamente na fonte |
 | 2026-11-10 | IA (Claude, Gemini) usada como professora e revisora; validacao e interpretacao sao feitas pela estudante; README tera secao "Como usei IA no projeto" | Mostrar uso consciente de IA, valorizado em vagas de dados |
 | 2026-11-10 | Documentos de `docs/` sao a fonte oficial do contexto do projeto | Manter qualquer assistente de IA alinhado ao mesmo historico |
+| 2026-11-16 | GitHub conectado ao Claude com acesso so a este repositorio; Claude faz commit dos `docs/`, a estudante envia o `.sql` | Evitar baixar e mover arquivos a mao; proteger os outros repositorios |
+| 2026-11-17 | Exercicios em formato curto (so a pergunta) e treino focado nas dificuldades | Pedido da estudante; explorar as tabelas faz parte do aprendizado |
+| 2026-11-18 | Mentor atua como professor de banco de dados, com foco em como o SQL funciona por dentro e dificuldade crescente | Objetivo e entender o porque de cada conceito, nao so a sintaxe |
 
 ## Quando e como atualizar este arquivo
 

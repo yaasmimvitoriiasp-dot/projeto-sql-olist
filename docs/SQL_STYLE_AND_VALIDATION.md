@@ -26,6 +26,53 @@ GROUP BY c.customer_state
 ORDER BY total_pedidos DESC;
 ```
 
+## Como o SQL executa uma consulta (ordem logica)
+
+A ordem em que se escreve nao e a ordem em que o banco executa. Para entender o resultado, ler a consulta nesta ordem:
+
+1. `FROM` e `JOIN`: monta a tabela de trabalho, juntando as tabelas.
+2. `WHERE`: descarta linhas, uma a uma. Ainda nao existe nenhuma conta.
+3. `GROUP BY`: separa as linhas que sobraram em grupos ("sacos").
+4. `HAVING`: descarta grupos, usando as contas de cada grupo.
+5. `SELECT`: calcula as colunas e as agregacoes (`COUNT`, `SUM`, `AVG`) de cada grupo.
+6. `ORDER BY`: ordena o resultado.
+7. `LIMIT`: corta a quantidade de linhas mostradas.
+
+Consequencias praticas:
+
+- Agregacao sem `GROUP BY` trata a tabela inteira como um grupo e devolve uma linha.
+- Com `GROUP BY`, o resultado tem uma linha por grupo. `COUNT(*)` conta as linhas que entraram em cada grupo, nao as linhas do resultado final.
+- `WHERE` nao enxerga contas; condicao sobre contagem vai no `HAVING`.
+- Condicao sobre cada linha -> `WHERE`. Condicao sobre cada grupo ("este pedido tem so 1 pagamento?") -> `GROUP BY` + `HAVING`.
+- `DISTINCT` dentro do `COUNT` age dentro de cada grupo, separadamente.
+- Uma coluna pode filtrar no `WHERE` sem aparecer no `SELECT`.
+- Coluna no `SELECT` fora de agregacao precisa estar no `GROUP BY`.
+- `JOIN` sozinho e `INNER JOIN`.
+
+## Escolher `INNER` ou `LEFT JOIN`
+
+1. Colocar no `FROM` a tabela que tem o que se procura (o assunto da pergunta).
+2. Perguntar: "se um registro dela nao tiver par na outra tabela, ele precisa continuar no resultado?" Nao -> `INNER JOIN`. Sim -> `LEFT JOIN`.
+3. Para achar o que falta (anti join): `LEFT JOIN` + `WHERE <coluna da tabela da direita> IS NULL`. O nulo nao existe nos dados: ele e criado pelo `LEFT JOIN` quando nao ha par. Preferir a chave da juncao (ex.: `p.order_id`), que so fica nula quando nao ha par.
+
+## Quando usar subconsulta
+
+Quando e preciso fazer uma segunda etapa em cima do resultado de uma consulta. Exemplo: o `GROUP BY` + `HAVING` gera uma lista de pedidos; para saber quantos sao, a lista vai entre parenteses no `FROM` de outra consulta que conta as linhas:
+
+```sql
+SELECT COUNT(*) AS total
+FROM (
+    SELECT order_id
+    FROM ecommerce.order_payments
+    GROUP BY order_id
+    HAVING COUNT(*) = 1
+) AS lista;
+```
+
+## Medias em tabelas 1:N
+
+`AVG(coluna)` divide pelo numero de linhas. Se a tabela tem varias linhas por pedido (pagamentos, itens), `AVG` vira media por linha, nao por pedido. Media por pedido: `SUM(valor) / COUNT(DISTINCT order_id)`. Nao existe agregacao dentro de agregacao (`AVG(SUM(...))` da erro).
+
 ## Aliases
 
 Aliases devem ajudar a leitura.

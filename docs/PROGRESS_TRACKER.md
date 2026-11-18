@@ -2,7 +2,7 @@
 
 Este arquivo registra a evolucao do aprendizado em SQL no projeto Olist. Ele deve mostrar o que foi praticado, o que ainda esta fragil, quais erros viraram aprendizado e qual e o proximo passo.
 
-Ultima atualizacao: 2026-11-16 (sessao de 2026-11-11).
+Ultima atualizacao: 2026-11-18.
 
 ## Estado atual
 
@@ -10,15 +10,17 @@ Ultima atualizacao: 2026-11-16 (sessao de 2026-11-11).
 - Banco: `projeto_ecommerce` (PostgreSQL 18, pgAdmin 4).
 - Schema: `ecommerce`.
 - Tabelas importadas: `customers`, `orders`, `order_items`, `order_payments`, `order_reviews`, `products`.
-- Nivel atual: basico pratico, entrando em relacionamentos (Etapa 2 do roadmap).
-- Foco atual: consolidar `GROUP BY` + `HAVING`; `JOIN` entre varias tabelas; cuidado com duplicacao em relacionamentos 1:N antes do ticket medio.
+- Nivel atual: basico pratico solido, fazendo relacionamentos e as primeiras consultas intermediarias (subconsulta).
+- Foco atual: entender como o SQL funciona por dentro (ordem logica de execucao); consolidar `GROUP BY` + `HAVING`, `LEFT JOIN` e `DISTINCT` em tabelas 1:N; proximas: datas, `CASE WHEN`, CTE e funcoes de janela.
+- Perguntas de negocio: 1 a 4 concluidas; faltam 5 e 6.
 - Meta: projeto publicado no GitHub e no LinkedIn ate 2026-12-14 (ver `MASTER_CONTEXT.md`).
 
 ## Conteudos praticados
 
 - `SELECT`, `FROM`, `WHERE`
 - `COUNT(*)`, `COUNT(campo)`, `COUNT(DISTINCT campo)`
-- `SUM`
+- `SUM`, `AVG`, `ROUND`
+- Divisao entre agregacoes (`SUM(...) / COUNT(DISTINCT ...)`)
 - `DISTINCT`
 - `GROUP BY`
 - `HAVING`
@@ -27,7 +29,9 @@ Ultima atualizacao: 2026-11-16 (sessao de 2026-11-11).
 - Aliases com `AS` e aliases de tabela (`c`, `o`, `p`)
 - `IS NULL`, `AND` e `IN`
 - `INNER JOIN` com 2 e 3 tabelas
-- `LEFT JOIN` (usado uma vez; diferenca para `INNER JOIN` explicada em 2026-11-10)
+- `LEFT JOIN`, inclusive `LEFT JOIN` + `IS NULL` para achar o que falta (anti join)
+- Subconsulta no `FROM` (contar os grupos de um `GROUP BY` + `HAVING`)
+- Ordem logica de execucao (`FROM`/`JOIN` -> `WHERE` -> `GROUP BY` -> `HAVING` -> `SELECT` -> `ORDER BY`)
 - `information_schema.tables` e `information_schema.columns`
 - `CREATE TABLE` e importacao de CSV pelo Import/Export Data do pgAdmin
 - Uso do Query Tool do pgAdmin
@@ -42,12 +46,16 @@ Ultima atualizacao: 2026-11-16 (sessao de 2026-11-11).
 | `ORDER BY` | Basico consolidado | Ordena por alias e por agregacao | Ok |
 | `COUNT(*)` / `COUNT(campo)` | Basico em consolidacao | Descobriu na pratica que `COUNT(campo)` ignora nulos (2026-11-04) | Em pratica |
 | `COUNT(DISTINCT campo)` | Basico em consolidacao | Usa para pessoas unicas; teve duvida se `customer_unique_id` precisava de `DISTINCT` e comprovou rodando as duas versoes (2026-11-02) | Reforcar |
-| `GROUP BY` | Inicial / fragil | Agrupa por uma e por duas colunas; em 2026-11-11 descobriu que agregacao sem `GROUP BY` olha a tabela inteira (1 linha); ainda confunde o que o `COUNT` devolve sem `GROUP BY` | Prioridade - retomar |
-| `HAVING` | Inicial / fragil | Resolveu cidades com mais de 1.000 clientes (2026-11-02) e a validacao de `order_items` sozinha (2026-11-11); mas ainda le `HAVING COUNT(x) > 1` como se comparasse cada linha/ID, e nao a contagem do grupo | Prioridade - retomar |
+| `GROUP BY` | Em consolidacao | Fixacao com 2 pedidos (2026-11-16): previu certo as versoes com `GROUP BY`; explicou com as proprias palavras ("sacos"). Em 2026-11-18 ainda rodou `HAVING` com `GROUP BY` comentado, mas entendeu ao contar uma tabela pequena na mao | Reforcar de forma espacada |
+| `HAVING` | Em consolidacao | Explicou em 2026-11-16: `WHERE` filtra linhas antes de contar, `HAVING` filtra grupos usando a conta | Reforcar de forma espacada |
 | `IS NULL` | Inicial | Pesquisou e aplicou sozinha (2026-11-04) | Em pratica |
-| `INNER JOIN` | Basico | 2 tabelas (2026-11-10) e 3 tabelas (2026-11-10, com pesquisa no Gemini) | Prioridade |
-| `LEFT JOIN` | Inicial | Usou com `WHERE` na tabela da direita (vira `INNER` na pratica); diferenca explicada com exemplo | Prioridade |
-| `SUM` | Inicial | Faturamento por estado (2026-11-10) | Em pratica |
+| `INNER JOIN` | Basico em consolidacao | 2 e 3 tabelas; explica que traz so o que existe nas duas tabelas; sabe que `JOIN` sozinho = `INNER JOIN` | Em pratica |
+| `LEFT JOIN` | Em pratica | Treino de 2026-11-17: pedidos sem avaliacao, sem item, produtos nunca vendidos e pedido sem pagamento. Regra escrita por ela: `FROM` = tabela que tem o que eu procuro; `LEFT JOIN` = tabela onde pode estar faltando. Ainda inverte as tabelas ou filtra o nulo do lado errado na primeira tentativa | Reforcar |
+| `SUM` | Basico | Faturamento por estado (2026-11-10) | Em pratica |
+| `AVG` e media por pedido | Inicial | Ticket medio (2026-11-16): entendeu que `AVG` divide pelo numero de linhas, e que em tabela 1:N isso vira media por pagamento | Em pratica |
+| `COUNT(DISTINCT)` em tabela 1:N | Inicial | Formas de pagamento (2026-11-18): resistiu, se convenceu achando nos dados um pedido com 29 vouchers | Reforcar |
+| Subconsulta | Inicial | Aprendeu em 2026-11-18 para contar os grupos de um `GROUP BY` + `HAVING` | Em pratica |
+| Ordem logica de execucao | Inicial | Explicada em 2026-11-17; ela pediu para aprender o funcionamento por dentro | Prioridade |
 | Interpretacao de resultados | Em desenvolvimento | Comparou fatia de pedidos x faturamento por estado; identificou inconsistencia nos dados (8 pedidos `delivered` sem data) | Em pratica |
 
 ## Exercicios concluidos
@@ -155,6 +163,81 @@ Como foi resolvido: validacoes 1, 2 e 4 sozinha; na 3 precisou de uma dica e de 
 
 Observacao: no script, a consulta da validacao 1 ainda tem um `GROUP BY order_id` que nao corresponde ao resultado registrado (foi rodado um trecho selecionado). Corrigir na limpeza.
 
+### Fixacao de `GROUP BY` + `HAVING` (2026-11-16)
+
+Com dois pedidos reais da `order_payments`, filtrados com `IN`: `7842147864c0425541edd55923f3c0f1` (2 pagamentos: credit_card 44,30 + voucher 50,00) e `b81ef226f3fe1789b1e8b2acac839d17` (1 pagamento: credit_card 99,33).
+
+| Passo | Consulta | Palpite dela | Resultado |
+|---|---|---|---|
+| 2 | `SELECT *` | - | 3 linhas |
+| 3 | so `COUNT(order_id)`, sem `GROUP BY` | 3 linhas | 1 linha, com o numero 3 |
+| 4 | `order_id` + `COUNT` + `GROUP BY order_id` | 2 linhas, 2 e 1 | 2 linhas, 2 e 1 |
+| 5 | + `HAVING COUNT(order_id) > 1` | - | 1 linha (o pedido 78421...) |
+
+Aprendizado: `COUNT` troca as linhas pela quantidade delas; sem `GROUP BY` sai uma linha so. `SELECT *` + `COUNT` sem `GROUP BY` da erro.
+
+Explicacao dela: o `GROUP BY` agrupa por uma categoria; o `WHERE` nao faz conta; o `HAVING` filtra usando a conta e vem depois do `GROUP BY`.
+
+### Pergunta de negocio 3: ticket medio (2026-11-16)
+
+Resultado: **R$ 159,86** por pedido entregue (`ROUND(SUM(payment_value) / COUNT(DISTINCT order_id), 2)`).
+
+Caminho:
+- 1a tentativa: `AVG(payment_value)` = 153,07. Era a media por pagamento, nao por pedido.
+- 2a tentativa: `AVG(SUM(...))` deu erro (agregacao dentro de agregacao). A intuicao "somar por pedido e depois tirar a media" estava certa; o jeito de escrever seria subconsulta.
+- A ponte com DAX (`DIVIDE(SUM(...), DISTINCTCOUNT(...))`) destravou.
+- Conferencia: 15.422.461,77 / 96.478 = 159,85, um centavo de diferenca. Hipotese: 1 pedido entregue sem pagamento. Confirmada em 2026-11-17.
+
+### Treino de `INNER` x `LEFT JOIN` (2026-11-17)
+
+Pedido dela: exercicios focados na dificuldade (entendia a teoria, mas nao sabia aplicar).
+
+| Exercicio | Resultado |
+|---|---|
+| `orders` x `order_reviews`: linhas com `JOIN` e com `LEFT JOIN` | 99.224 e 99.992 (diferenca 768) |
+| Pedidos sem avaliacao (`LEFT JOIN` + `r.order_id IS NULL`) | 768 |
+| Pedidos sem nenhum item | 775 |
+| Produtos da `products` nunca vendidos | 0 |
+| Pedido entregue sem pagamento | 1: `bfbd0f9bdef84302105ad712db648a6c` |
+| Pedidos sem avaliacao por status | delivered 646, shipped 75, canceled 20, unavailable 14, processing 6, invoiced 5, created 2 |
+
+Regra escrita por ela como comentario no script:
+
+```sql
+FROM ecommerce.orders o                 -- tabela que tem o que eu procuro
+LEFT JOIN ecommerce.order_payments p    -- tabela onde pode estar faltando
+```
+
+Erros no caminho: primeiro tentou achar o que falta olhando so a tabela onde falta (`order_items WHERE order_id IS NULL` = 0); filtrou o nulo do lado da `orders` (`o.order_id IS NULL`); inverteu as tabelas nos produtos.
+
+Explicacao dela: "o `INNER` traz o que e compativel entre as duas tabelas; no `LEFT` a gente mantem tudo da esquerda, inclusive o que nao e compativel, e o que nao e compativel vem nulo".
+
+Ainda nao entendeu por que filtrar por `r.review_id` tambem funciona. Retomar.
+
+### Pergunta de negocio 4: formas de pagamento (2026-11-18)
+
+| Forma | Sem `DISTINCT` (pagamentos) | Com `DISTINCT` (pedidos) | % dos 99.440 pedidos com pagamento |
+|---|---|---|---|
+| credit_card | 76.795 | 76.505 | 76,9% |
+| boleto | 19.784 | 19.784 | 19,9% |
+| voucher | 5.775 | 3.866 | 3,9% |
+| debit_card | 1.529 | 1.528 | 1,5% |
+| not_defined | 3 | 3 | 0,0% |
+
+Leitura: o voucher cai 33% com `DISTINCT` porque varios vouchers sao usados no mesmo pedido (achou o pedido `fa65dad1b0e818e3ccc5cb0e39231352` com 29 linhas de voucher). A soma com `DISTINCT` (101.686) passa de 99.440 porque um pedido pode usar mais de uma forma, e isso e o correto.
+
+Resistencia no caminho: achava que `order_id` era unico na `order_payments` e que o `DISTINCT` tiraria o pedido de outra forma de pagamento. Entendeu que o `DISTINCT` age dentro de cada grupo.
+
+Observacao: o `ORDER BY` da consulta ainda usa `count(order_id)` sem `DISTINCT`; ajustar na limpeza.
+
+### Subconsulta (2026-11-18)
+
+Para contar quantos pedidos tem exatamente 1 pagamento: `SELECT COUNT(*) FROM (consulta com GROUP BY order_id HAVING COUNT(*) = 1) AS lista`. Resultado: **96.479**.
+
+Conferencia: 96.479 (1 pagamento) + 2.961 (mais de 1) + 1 (sem pagamento) = 99.441 pedidos. Os numeros fecham.
+
+Explicacao dela: "preciso do `GROUP BY` para olhar cada `order_id` separadamente, mas o resultado sai agrupado e nao e o total; por isso a subconsulta".
+
 ## Exercicios destravados pela palavra `entrega`
 
 Nenhum ate o momento.
@@ -177,26 +260,37 @@ Observacao: os comandos `CREATE TABLE` das quatro tabelas novas (2026-11-03) e a
 | 2026-11-04 | `COUNT(order_delivered_customer_date)` com `WHERE ... IS NULL` retornava 0 | `COUNT(campo)` ignora nulos | Contar uma coluna que sempre existe | Corrigido |
 | 2026-11-10 | `LEFT JOIN` com filtro na tabela da direita | Diferenca entre tipos de join esquecida | O filtro remove as linhas sem par, entao vira `INNER JOIN` na pratica | Reforcar com exercicio |
 | 2026-11-11 | `GROUP BY order_id` numa contagem da tabela inteira | Achava que toda agregacao exige `GROUP BY` | Sem coluna fora da agregacao no `SELECT`, nao precisa de `GROUP BY` | Corrigido |
-| 2026-11-11 | `COUNT(order_id)` + `HAVING > 1` sem `GROUP BY` para achar pedidos repetidos | Le o `HAVING` como filtro de cada linha/ID e espera ver os registros listados | Com `COUNT` no `SELECT`, a consulta devolve uma linha por grupo; sem `GROUP BY` ha um grupo so (a tabela) e o `HAVING` compara o total com 1 | Pendente - retomar com exercicios de previsao |
+| 2026-11-11 | `COUNT(order_id)` + `HAVING > 1` sem `GROUP BY` para achar pedidos repetidos | Le o `HAVING` como filtro de cada linha/ID e espera ver os registros listados | Com `COUNT` no `SELECT`, a consulta devolve uma linha por grupo; sem `GROUP BY` ha um grupo so (a tabela) e o `HAVING` compara o total com 1 | Melhorou com a fixacao de 2026-11-16; reapareceu em 2026-11-18 |
+| 2026-11-16 | `AVG(payment_value)` como ticket medio | `AVG` divide pelo numero de linhas, e a `order_payments` tem uma linha por pagamento | Media por pedido = total / pedidos distintos | Corrigido |
+| 2026-11-16 | `AVG(SUM(...))` | SQL nao aceita agregacao dentro de agregacao | Usar divisao entre agregacoes ou subconsulta | Corrigido |
+| 2026-11-17 | `INNER JOIN` + `IS NULL` voltou vazio | O `INNER` descarta quem nao tem par antes do `WHERE` | Para achar o que falta: `LEFT JOIN` + nulo do lado da tabela onde pode faltar | Corrigido, reforcar |
+| 2026-11-17 | Procurar o que falta olhando so a tabela onde falta | O registro ausente nao e uma linha nula, ele nao existe la | Partir da tabela que tem o registro | Corrigido |
+| 2026-11-17 | Filtrar `o.order_id IS NULL` (lado da `orders`) | Confusao sobre de que lado nasce o nulo | O nulo nasce do lado da tabela do `LEFT JOIN` | Corrigido, reforcar |
+| 2026-11-18 | Sem `DISTINCT` ao contar pedidos por forma de pagamento | Achava que `order_id` era unico na `order_payments` | Antes de contar, perguntar: "nessa tabela, o que eu conto pode se repetir?" | Corrigido |
+| 2026-11-18 | `HAVING` com `GROUP BY` comentado; concluiu que nao havia pedidos com 1 pagamento | Mesmo ponto de 2026-11-11 | Sem `GROUP BY`, o `HAVING` compara o total da tabela | Corrigido, reforcar |
 
 ## Dificuldades atuais
 
-- O que uma consulta com `COUNT` devolve com e sem `GROUP BY`, e o que o `HAVING` compara. A estudante decidiu seguir em 2026-11-11 mesmo sem consolidar; retomar de forma espacada (exercicio de previsao com 2 pedidos filtrados por `IN`, proposto e ainda nao feito).
-- Diferenca entre `INNER JOIN` e `LEFT JOIN` na pratica (quando cada um muda o resultado).
-- Explicar com as proprias palavras o caminho de um `JOIN` com 3 tabelas.
-- Prever duplicacao de linhas em relacionamentos 1:N (sera essencial no ticket medio).
+- Quando a condicao e sobre cada linha (`WHERE`) e quando e sobre cada grupo (`GROUP BY` + `HAVING`). Melhorou, mas ainda escorrega.
+- Escolher a tabela do `FROM` e o lado do nulo no `LEFT JOIN` na primeira tentativa.
+- Prever duplicacao em tabelas 1:N antes de contar ou somar (`order_payments`, `order_items`).
+- Por que filtrar por qualquer coluna da tabela da direita (ex.: `r.review_id`) funciona no anti join.
+- Entender o funcionamento por dentro (ordem logica de execucao) e ler as consultas nessa ordem.
 
 ## Proximo exercicio
 
-Abrir a sessao com uma fixacao curta de `GROUP BY` + `HAVING` (exercicio de previsao: prever quantas linhas cada consulta devolve antes de rodar, com 2 pedidos filtrados por `IN`).
+Pendente de 2026-11-18: "Existem pedidos que aparecem mais de uma vez com a mesma forma de pagamento? Quantos?" (exercicio 30 do script; o caso existe, ex.: `fa65dad...` com 29 vouchers, mas o total nao foi calculado).
 
-Em seguida: pergunta de negocio 3, ticket medio por pedido, levando em conta que um pedido pode ter varios pagamentos e varios itens.
+Depois: pergunta de negocio 5, atraso na entrega x nota da avaliacao. Conceitos novos: calculo com datas e `CASE WHEN`.
+
+Ver o plano por conceito em `MASTER_CONTEXT.md`.
 
 Importante: nao resolver este exercicio neste arquivo. Ele deve ser conduzido pela metodologia do `LEARNING_PROTOCOL.md`.
 
 ## Pendencias antes de avancar muito
 
 - Registrar o resultado do exercicio 12 (pessoas diferentes em `customers`), com data.
+- Ajustar no script o `ORDER BY` da pergunta 4 para usar a mesma contagem com `DISTINCT`.
 - Verificar nulos nas chaves de relacionamento.
 - Explicar com as proprias palavras a consulta da pergunta 2.
 - Colocar no script a consulta das cidades com mais de 1.000 clientes (perguntas 1 e 2 ja estao no script desde 2026-11-10).
@@ -223,7 +317,15 @@ Proximo passo em Git: sessao de estudo na Etapa 5 (organizacao do repositorio).
 
 ### 2026-11-11 - Arquivo certo no pgAdmin
 
+Em 2026-11-16 o arquivo certo foi definido de vez: as consultas foram copiadas da aba `ç.sql` para a aba aberta pelo Open File do arquivo do projeto.
+
 O pgAdmin estava salvando no arquivo antigo `ç.sql` (pasta Downloads). Combinado: usar Save As para o arquivo do projeto e abrir sempre pelo Open File da pasta `OneDrive\Documentos\projeto-sql-olist\`.
+
+### 2026-11-16 - GitHub conectado ao Claude
+
+O GitHub foi conectado ao Claude com acesso **somente** ao repositorio `projeto-sql-olist` (os outros repositorios, inclusive de trabalho, ficam inacessiveis). Novo fluxo: o Claude atualiza `docs/` e faz commit e push direto; a estudante roda `git pull` na pasta do projeto antes de enviar o `.sql` (`git add`, `git commit`, `git push`).
+
+Aprendizado: `git pull` precisa ser rodado dentro da pasta do repositorio; sem o `pull`, o `push` e recusado quando o GitHub tem commits novos.
 
 ## Uso de IA no projeto
 
