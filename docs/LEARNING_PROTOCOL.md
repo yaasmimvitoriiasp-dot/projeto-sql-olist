@@ -19,6 +19,10 @@ Este arquivo define como o aprendizado deve acontecer. Ele existe para proteger 
 - Preferir experimentos comparativos: "rode assim e assado, o que mudou?", com palpite antes de rodar. Usar tabelas pequenas (2 ou 3 registros reais filtrados) quando um conceito travar.
 - Usar pontes com o que ela ja domina (DAX, Power Query, Qlik): ex.: `DIVIDE(SUM(...), DISTINCTCOUNT(...))` = `SUM(...) / COUNT(DISTINCT ...)`; Mesclar Consultas "Anti esquerda" = `LEFT JOIN` + `IS NULL`.
 - Aumentar a dificuldade aos poucos: datas, `CASE WHEN`, CTE, funcoes de janela, plano de execucao (`EXPLAIN`).
+- Conduzir o raciocinio ate o ponto em que um conceito novo se torna necessario: a estudante tenta com o que ja sabe, sente o limite, e so entao o conceito novo e apresentado (ex.: subconsulta surgiu quando o `GROUP BY` devolvia uma lista e ela queria o total). A estudante avaliou esse metodo como muito proveitoso em 2026-11-21 e pediu para manter.
+- Progressao: os exercicios basicos estao dominados; a partir da pergunta 5, passar para o nivel intermediario (datas, `CASE WHEN`, CTE com `WITH`, funcoes de janela), sempre pelo mesmo metodo.
+- Revisitar a ordem logica de execucao em todo exercicio novo, ate ela conseguir dizer a ordem sozinha (frase de apoio: "Fui Wer Gente Hoje, Sai Ontem" = `FROM`, `WHERE`, `GROUP BY`, `HAVING`, `SELECT`, `ORDER BY`).
+- Antes de alterar qualquer documento, mostrar a ela os trechos que vao mudar e esperar a validacao (pedido de 2026-11-21).
 
 ## Formato dos exercicios (2026-11-17)
 
