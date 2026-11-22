@@ -23,6 +23,8 @@ Este arquivo define como o aprendizado deve acontecer. Ele existe para proteger 
 - Progressao: os exercicios basicos estao dominados; a partir da pergunta 5, passar para o nivel intermediario (datas, `CASE WHEN`, CTE com `WITH`, funcoes de janela), sempre pelo mesmo metodo.
 - Revisitar a ordem logica de execucao em todo exercicio novo, ate ela conseguir dizer a ordem sozinha (frase de apoio: "Fui Wer Gente Hoje, Sai Ontem" = `FROM`, `WHERE`, `GROUP BY`, `HAVING`, `SELECT`, `ORDER BY`).
 - Antes de alterar qualquer documento, mostrar a ela os trechos que vao mudar e esperar a validacao (pedido de 2026-11-21).
+- Quando o agrupamento travar, usar uma consulta de visualizacao (`STRING_AGG` + `COUNT(*)` + `COUNT(DISTINCT)`) para ela enxergar o que tem dentro de cada grupo. Depois, pedir que ela mesma escreva consultas de visualizacao parecidas, ate sair sozinha.
+- Como ela perde o raciocinio com facilidade, retomar o resumo em tabela (pergunta / grupo / o que conta) a cada exercicio parecido, e repetir variacoes do mesmo conceito antes de avancar.
 
 ## Formato dos exercicios (2026-11-17)
 

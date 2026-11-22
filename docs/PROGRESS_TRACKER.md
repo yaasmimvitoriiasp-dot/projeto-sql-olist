@@ -255,6 +255,20 @@ Ainda "parece magica": contar dentro do grupo; grupos x pedidos.
 
 Proximo: 33. Quantos pedidos usaram mais de uma forma de pagamento diferente?
 
+### 33 e visualizacao dos grupos (2026-11-22)
+
+- 33: chegou sozinha a consulta de dentro: `GROUP BY order_id` + `HAVING COUNT(DISTINCT payment_type) > 1`. Percebeu sozinha por que agrupar tambem pela forma nao funciona (cada forma vira um grupo e o `COUNT(DISTINCT)` da sempre 1).
+- Diferenca entre 32 e 33:
+  - 32 (mesma forma repetida): grupo = pedido + forma; `HAVING COUNT(*) > 1`.
+  - 33 (formas diferentes): grupo = pedido; `HAVING COUNT(DISTINCT payment_type) > 1`.
+- Viu o que tem dentro de cada grupo com `STRING_AGG(payment_type, ', ')` + `COUNT(*)` + `COUNT(DISTINCT)`. Avaliou como muito util ("magnifico").
+
+Dificuldades relatadas por ela:
+
+- Perde o raciocinio com facilidade: o conceito faz sentido e, um segundo depois, para de fazer.
+- Agrupamento ainda e duvida em partes.
+- Entende a consulta com `STRING_AGG`, mas ainda nao conseguiria escreve-la sozinha.
+
 ## Exercicios destravados pela palavra `entrega`
 
 Nenhum ate o momento.
