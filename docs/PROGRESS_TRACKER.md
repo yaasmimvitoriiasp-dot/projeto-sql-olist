@@ -269,6 +269,11 @@ Dificuldades relatadas por ela:
 - Agrupamento ainda e duvida em partes.
 - Entende a consulta com `STRING_AGG`, mas ainda nao conseguiria escreve-la sozinha.
 
+Resultado e conferencia:
+
+- Resultado da 33: 2.246 pedidos usaram mais de uma forma de pagamento diferente (subconsulta montada sozinha, com `order_id` visivel no `SELECT` de dentro).
+- Conferencia: 1.091 (32) + 2.246 (33) - 2.961 (mais de 1 pagamento) = 376 pedidos que estao nas duas listas (formas diferentes e uma delas repetida, ex.: `ccf804...` com 25 vouchers + 1 cartao). Confirmar com consulta: proximo exercicio.
+
 ## Exercicios destravados pela palavra `entrega`
 
 Nenhum ate o momento.

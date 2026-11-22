@@ -142,6 +142,8 @@ Confirmado em 2026-11-18: o mesmo pedido pode ter varias linhas da **mesma** for
 
 Confirmado em 2026-11-21: 1.091 pedidos repetem a mesma forma de pagamento; nenhum pedido repete duas formas diferentes ao mesmo tempo.
 
+Confirmado em 2026-11-22: 2.246 pedidos usaram mais de uma forma de pagamento diferente.
+
 Um pedido entregue nao tem nenhuma linha nesta tabela (`bfbd0f9bdef84302105ad712db648a6c`); um `INNER JOIN` com `order_payments` o descarta.
 
 ## `ecommerce.order_reviews`
