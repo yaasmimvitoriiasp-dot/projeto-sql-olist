@@ -242,6 +242,7 @@ from ecommerce.customers
 --na order_payments
 select * from ecommerce.order_payments limit 5
 select
+	order_id,
 	count(order_id) as qtd_order_id
 from ecommerce.order_payments
 group by order_id
@@ -257,3 +258,169 @@ group by
 	order_id
 having
 	count(order_id) > 1
+--23.
+select
+	order_id,
+	count(order_id) as qtd_order_id
+from 
+	ecommerce.order_payments
+where 
+	order_id in ('7842147864c0425541edd55923f3c0f1', 
+	'b81ef226f3fe1789b1e8b2acac839d17')
+group by 
+	order_id
+having 
+	count(order_id) > 1
+
+--23.ticket médio dos pedidos entregues
+select 
+	round(sum(p.payment_value) / count(distinct p.order_id),2) as ticket_medio
+from 
+	ecommerce.order_payments p
+inner join 
+	ecommerce.orders o
+on
+	p.order_id = o.order_id
+where 
+	order_status = 'delivered'
+--24.quais pedidos entregues não têm nenhuma linha na order_payments
+select 
+	o.order_id,
+	count(o.order_id) as qtd_order_id
+from
+	ecommerce.orders o
+left join 
+	ecommerce.order_payments p
+on
+	o.order_id = p.order_id 
+where
+	o.order_status = 'delivered' and p.payment_value is null
+group by
+	o.order_id
+order by 
+	count(o.order_id) desc
+
+select * from ecommerce.order_reviews limit 5
+
+select 
+	count(*) as qtd_linhas
+from 
+	ecommerce.orders o
+left join 
+	ecommerce.order_reviews r
+on 
+	o.order_id = r.order_id
+where 
+	r.order_id is null
+
+--25. Quantos pedidos não têm nenhum item na order_items?
+select 
+	count(*) as qtd_linhas
+from
+	ecommerce.orders o
+left join 
+	ecommerce.order_items i
+on 
+	o.order_id = i.order_id
+where 
+	i.order_id is null
+
+--26. Quantos produtos da products nunca foram vendidos?
+select 
+	count(*) as qtd_linhas
+from 
+	ecommerce.products p 
+left join 
+	ecommerce.order_items i
+on 
+	p.product_id = i.product_id
+where
+	i.product_id is null
+--27. Qual pedido entregue não tem nenhum pagamento registrado?
+select 
+	o.order_id
+from 
+	ecommerce.orders o
+left join 
+	ecommerce.order_payments p
+on 
+	p.order_id = o.order_id
+where 
+	o.order_status = 'delivered' and p.payment_value is null
+--28. Quantos pedidos sem avaliação existem em cada status de pedido?
+select 
+	o.order_status,
+	count(*) as qtd_pedido_sem_avaliacao
+from
+	ecommerce.orders o
+left join 
+	ecommerce.order_reviews r
+on 
+	o.order_id = r.order_id 
+where 
+	r.review_id is null
+group by 
+	o.order_status
+order by
+	count(*) desc
+--29 Quais são as formas de pagamento mais usadas, 
+--e quantos pedidos usaram cada uma?
+select 
+	payment_type,
+	count(order_id) as qtd_pedidos
+from
+	ecommerce.order_payments
+group by 
+	payment_type
+order by 
+	count(order_id) desc
+
+
+select 
+	count(order_id) as qtd_pedidos
+from
+	ecommerce.order_payments
+
+--30. Existem pedidos que 
+--aparecem mais de uma vez com a mesma forma de pagamento? Quantos?
+select 
+	order_id,
+	count(payment_type)
+from
+	ecommerce.order_payments
+group by 
+	order_id
+having 
+	count(payment_type) > 1
+order by
+	count(payment_type) desc
+
+--31. Quantos pedidos têm exatamente 1 pagamento? 
+select 
+	count(*)
+from
+(select 
+	count(*)
+from 
+	ecommerce.order_payments
+group by 
+	order_id
+having 
+	count(payment_type) = 1) as um_pagamento
+ 
+--32. Quantos pedidos diferentes aparecem mais de uma 
+--vez com a mesma forma de pagamento? 
+select 
+	count(distinct order_id)
+from
+(select 
+	order_id
+from 
+	ecommerce.order_payments 
+group by 
+	order_id, payment_type
+having 
+	count(payment_type) > 1) as same_payment
+
+	
+
