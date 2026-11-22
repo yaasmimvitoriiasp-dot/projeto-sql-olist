@@ -238,6 +238,23 @@ Conferencia: 96.479 (1 pagamento) + 2.961 (mais de 1) + 1 (sem pagamento) = 99.4
 
 Explicacao dela: "preciso do `GROUP BY` para olhar cada `order_id` separadamente, mas o resultado sai agrupado e nao e o total; por isso a subconsulta".
 
+### Revisao e subconsulta com coluna (2026-11-21)
+
+- Refez sozinha a subconsulta dos pedidos com exatamente 1 pagamento: 96.479.
+- 32: 1.091 pedidos usaram a mesma forma de pagamento mais de uma vez (grupo = pedido + forma; por fora, `COUNT(DISTINCT order_id)`). Contar grupos e contar pedidos deu o mesmo numero: nenhum pedido repete duas formas ao mesmo tempo.
+
+Aprendizados (nas palavras dela, ajustadas):
+
+- Cada linha do resultado e um grupo; o `COUNT` conta as linhas da tabela original que estao dentro desse grupo.
+- Ele conta dentro do grupo porque o `GROUP BY` acontece antes; o que esta no `GROUP BY` decide o que e um grupo.
+- Se a consulta de fora vai usar uma coluna, ela precisa estar visivel no `SELECT` de dentro, e nao escondida dentro de um `COUNT`.
+
+Erros no caminho: `COUNT(DISTINCT order_id)` dentro de cada grupo (sempre 1); consulta de fora pedindo `order_id` que a de dentro nao mostrava ("column does not exist"); `WHERE payment_type = '<id do pedido>'`.
+
+Ainda "parece magica": contar dentro do grupo; grupos x pedidos.
+
+Proximo: 33. Quantos pedidos usaram mais de uma forma de pagamento diferente?
+
 ## Exercicios destravados pela palavra `entrega`
 
 Nenhum ate o momento.

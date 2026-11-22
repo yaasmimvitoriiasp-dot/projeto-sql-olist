@@ -69,6 +69,8 @@ FROM (
 ) AS lista;
 ```
 
+A consulta de fora so enxerga as colunas que a de dentro mostra no `SELECT`. Para `COUNT(*)` por fora, qualquer coluna serve; para `COUNT(DISTINCT x)` por fora, a de dentro precisa mostrar `x`.
+
 ## Medias em tabelas 1:N
 
 `AVG(coluna)` divide pelo numero de linhas. Se a tabela tem varias linhas por pedido (pagamentos, itens), `AVG` vira media por linha, nao por pedido. Media por pedido: `SUM(valor) / COUNT(DISTINCT order_id)`. Nao existe agregacao dentro de agregacao (`AVG(SUM(...))` da erro).

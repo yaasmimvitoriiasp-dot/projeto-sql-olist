@@ -140,6 +140,8 @@ Confirmado em 2026-11-11: 2.961 pedidos aparecem mais de uma vez (tem mais de um
 
 Confirmado em 2026-11-18: o mesmo pedido pode ter varias linhas da **mesma** forma de pagamento (ex.: `fa65dad1b0e818e3ccc5cb0e39231352` com 29 linhas de voucher). Para contar pedidos por forma de pagamento, usar `COUNT(DISTINCT order_id)`. Formas: credit_card, boleto, voucher, debit_card, not_defined (3 pedidos).
 
+Confirmado em 2026-11-21: 1.091 pedidos repetem a mesma forma de pagamento; nenhum pedido repete duas formas diferentes ao mesmo tempo.
+
 Um pedido entregue nao tem nenhuma linha nesta tabela (`bfbd0f9bdef84302105ad712db648a6c`); um `INNER JOIN` com `order_payments` o descarta.
 
 ## `ecommerce.order_reviews`
